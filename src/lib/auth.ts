@@ -112,6 +112,7 @@ export const auth = betterAuth({
         },
     },
 
+    // user additional add
     user: {
         additionalFields: {
             role: {
