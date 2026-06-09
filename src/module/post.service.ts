@@ -13,11 +13,12 @@ const createPost = async (data: Prisma.PostCreateInput, id: string) => {
     return result
 }
 
-const getAllPost = async ({ search, tags }: { search: string | undefined, tags: string[] | [] }) => {
+const getAllPost = async ({ search, tags, isFeature, authorId }:
+    { search: string | undefined, tags: string[] | [], isFeature: boolean | undefined, authorId: string }) => {
 
-    const searchOrTags : Prisma.PostWhereInput[] = []
+    const andCondition: Prisma.PostWhereInput[] = []
     if (search) {
-        searchOrTags.push(
+        andCondition.push(
             {
                 OR: [
                     {
@@ -28,13 +29,13 @@ const getAllPost = async ({ search, tags }: { search: string | undefined, tags: 
                     },
                     {
                         content: {
-                            contains: search ,
+                            contains: search,
                             mode: "insensitive"
                         }
                     },
                     {
                         tags: {
-                            has: search 
+                            has: search
                         }
                     }]
             }
@@ -42,16 +43,29 @@ const getAllPost = async ({ search, tags }: { search: string | undefined, tags: 
     }
 
     if (tags?.length) {
-        searchOrTags.push({
+        andCondition.push({
             tags: {
-                hasEvery: tags 
+                hasEvery: tags
             }
+        })
+    }
+
+    if (typeof isFeature === 'boolean') {
+        andCondition.push({
+            isFeature
+        })
+
+    }
+
+    if(authorId){
+        andCondition.push({
+            authorId
         })
     }
 
     const result = await prisma.post.findMany({
         where: {
-            AND: searchOrTags
+            AND: andCondition
         }
     })
     return result;
