@@ -11,6 +11,8 @@ router.get(
     postController.getAllPost
 )
 
+router.get('/:id', postController.getAllById)
+
 router.post(
     '/',
     authMiddleware(UserRole.USER),
