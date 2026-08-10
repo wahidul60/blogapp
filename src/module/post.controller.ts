@@ -11,6 +11,7 @@ const createPost = async (req: Request, res: Response) => {
 
             })
         }
+        console.log("requestion:",req.user)
         const result = await postService.createPost(req.body, req.user.id as string)
         res.status(200).json({
             result

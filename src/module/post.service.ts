@@ -9,7 +9,7 @@ const createPost = async (data: Prisma.PostCreateInput, id: string) => {
             authorId: id
         }
     })
-    console.log(result)
+   
     return result
 }
 

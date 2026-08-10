@@ -3,9 +3,10 @@ import { UserRole } from "../middleware/auth"
 
 const seedAdmin = async () => {
     try {
+        
         const adminData = {
-            name: "Wahidul Hassan 3",
-            email: "wahidulhassan88@gmail.com",
+            name: "Wahidul Hassan 6",
+            email: "wahidulhassan111@gmail.com",
             userRole: UserRole.ADMIN,
             password: "admin123"
         }
@@ -15,6 +16,7 @@ const seedAdmin = async () => {
                 email: adminData.email
             }
         })
+        
 
         if (existingUser) {
             throw new Error("admin data exist you are not allowed to create admin")
@@ -40,13 +42,14 @@ const seedAdmin = async () => {
             })
         }
         const text = await signUpAdmin.text()
-        const status = signUpAdmin.status
+        const status = signUpAdmin.status        
         console.log("signup admin", signUpAdmin, text, status)
 
 
     } catch (err) {
-
+        console.error(err)
     }
 }
+
 
 seedAdmin()

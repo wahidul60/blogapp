@@ -1,6 +1,5 @@
 import { NextFunction, Request, Response } from 'express'
 import { auth } from '../../src/lib/auth'
-import { includes } from 'better-auth/*'
 
 export enum UserRole {
     ADMIN = "ADMIN",
@@ -27,7 +26,7 @@ const authMiddleware = (...role: UserRole[]) => {
             const session = await auth.api.getSession({
                 headers: req.headers as any,
             })
-            console.log(req.user)
+            
 
             if (!session) {
                 return res.status(401).json({
@@ -36,11 +35,12 @@ const authMiddleware = (...role: UserRole[]) => {
                 });
             }
 
+            console.log(session)
             if (!session.user.emailVerified) {
                 return res.status(401).json({
                     success: false,
                     message: "Your email not verified. Please verify your email"
-                })
+                })                             
             }
             req.user = {
                 id: session.user.id,

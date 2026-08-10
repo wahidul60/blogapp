@@ -10,6 +10,7 @@ async function server() {
     try {
         await prisma.$connect()
         console.log("prisma connect successfully")
+        console.log(process.env.DATABASE_URL);
         app.listen(port, () => {
             console.log("server is is listening localhost:", port)
         })

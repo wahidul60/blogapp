@@ -1,8 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
   provider = "prisma-client-js"
   output   = "../generated/prisma"
@@ -12,25 +7,18 @@ datasource db {
   provider = "postgresql"
 }
 
-// model User {
-//   id    Int     @id @default(autoincrement())
-//   email String  @unique
-//   name  String?
-
-// }
-
 model Post {
   id        String     @id @default(uuid())
   title     String     @db.VarChar(225)
-  content   String?    @db.Text
+  content   String?
   isFeature Boolean    @default(false)
   status    PostStatus @default(PUBLISHED)
   views     Int        @default(0)
   authorId  String
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
-  comments  Comment[]
   tags      String[]
+  comments  Comment[]
 
   @@index([authorId])
   @@map("posts")
@@ -38,56 +26,42 @@ model Post {
 
 model Comment {
   id        String        @id @default(uuid())
-  content   String        @db.Text
+  content   String
   authorId  String
   postID    String
-  post      Post          @relation(fields: [postID], references: [id])
   status    CommentStatus @default(APPROVED)
   parentId  String?
-  parent    Comment?      @relation("commentReplies", fields: [parentId], references: [id])
-  replies   Comment[]     @relation("commentReplies")
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt
+  parent    Comment?      @relation("commentReplies", fields: [parentId], references: [id])
+  replies   Comment[]     @relation("commentReplies")
+  post      Post          @relation(fields: [postID], references: [id])
 
   @@index([postID])
   @@map("comments")
 }
 
-enum PostStatus {
-  DRAFT
-  PUBLISHED
-  ARCHIVED
-}
-
-enum CommentStatus {
-  APPROVED
-  REJECTED
-  ARCHIVED
-}
-
 model User {
   id            String    @id
   name          String
-  email         String
+  email         String    @unique
   emailVerified Boolean   @default(false)
   image         String?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
-  sessions      Session[]
+  phone         String?
+  role          String?   @default("USER")
+  status        String?   @default("ACTIVE")
   accounts      Account[]
+  sessions      Session[]
 
-  role   String? @default("USER")
-  phone  String?
-  status String? @default("ACTIVE")
-
-  @@unique([email])
   @@map("user")
 }
 
 model Session {
   id        String   @id
   expiresAt DateTime
-  token     String
+  token     String   @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   ipAddress String?
@@ -95,7 +69,6 @@ model Session {
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([token])
   @@index([userId])
   @@map("session")
 }
@@ -105,7 +78,6 @@ model Account {
   accountId             String
   providerId            String
   userId                String
-  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   accessToken           String?
   refreshToken          String?
   idToken               String?
@@ -115,6 +87,7 @@ model Account {
   password              String?
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@map("account")
@@ -130,4 +103,16 @@ model Verification {
 
   @@index([identifier])
   @@map("verification")
+}
+
+enum PostStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum CommentStatus {
+  APPROVED
+  REJECTED
+  ARCHIVED
 }

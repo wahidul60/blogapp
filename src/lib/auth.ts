@@ -3,6 +3,7 @@ import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from "./prisma";
 import nodemailer from "nodemailer"
 
+console.log("database Url",process.env.DATABASE_URL)
 const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
   port: 587,
@@ -13,11 +14,13 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-export const auth = betterAuth({
+
+
+export const auth =  betterAuth({
   database: prismaAdapter(prisma, {
     provider: "postgresql",
+    
   }),
-
   trustedOrigins: [process.env.BETTER_AUTH_URL!],
   user: {
     additionalFields: {
@@ -40,7 +43,7 @@ export const auth = betterAuth({
 
   emailAndPassword: {
     enabled: true,
-    requireEmailVerification: true,
+    requireEmailVerification: false,
     autoSignIn: false
   },
 
@@ -48,7 +51,7 @@ export const auth = betterAuth({
     sendOnSignUp: true,
     autoSignInAfterVerification: true,
     sendVerificationEmail: async ({ user, url, token }, request) => {
-
+      console.log("user", user)
       try {
         const info = await transporter.sendMail({
           from: '"Wahidul Hassan" <wahidulhassan60@gmail.com>', // sender address
