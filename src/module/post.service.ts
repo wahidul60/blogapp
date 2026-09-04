@@ -202,7 +202,7 @@ const updatePost = async (postId : string, authorId : string, data : Partial<Pos
     })
 
     if(!(authorId && postData?.authorId)){
-        throw new Error("You can update only your own post ")
+        throw new Error("You can update only your own post please don't change other's post")
     }
 
     return await prisma.post.update({
