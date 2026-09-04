@@ -19,7 +19,6 @@ declare global {
     }
 }
 
-
 const authMiddleware = (...role: UserRole[]) => {
     return async (req: Request, res: Response, next: NextFunction) => {
         try {

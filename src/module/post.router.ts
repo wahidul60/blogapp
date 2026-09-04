@@ -10,8 +10,11 @@ router.get(
     '/',
     postController.getAllPost
 )
+router.get('/my-post', authMiddleware(UserRole.ADMIN, UserRole.USER), postController.getMyPost)
+router.patch('/:postId', authMiddleware(UserRole.ADMIN, UserRole.USER), postController.updatePost)
 
 router.get('/:id', postController.getAllById)
+
 
 router.post(
     '/',

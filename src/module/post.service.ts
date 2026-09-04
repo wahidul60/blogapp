@@ -1,4 +1,4 @@
-import { Post, Prisma } from "../../generated/prisma";
+import { CommentStatus, Post, Prisma } from "../../generated/prisma";
 import { prisma } from "../lib/prisma";
 
 
@@ -9,7 +9,7 @@ const createPost = async (data: Prisma.PostCreateInput, id: string) => {
             authorId: id
         }
     })
-   
+
     return result
 }
 
@@ -76,6 +76,14 @@ const getAllPost = async (
 
         where: {
             AND: andCondition
+        },
+        
+        include : {
+            _count : {
+                select : {
+                    comments : true
+                }
+            }
         }
     })
 
@@ -113,6 +121,44 @@ const getAllById = async (id: string) => {
         const postData = await tx.post.findUnique({
             where: {
                 id: id
+            },
+            include: {
+                comments: {
+                    where: {
+                        parentId: null,
+                        status: CommentStatus.APPROVED
+                    },
+
+                    orderBy: {
+                        createdAt: "desc"
+                    },
+
+                    include: {
+                        replies: {
+                            where: {
+                                status: CommentStatus.APPROVED
+                            },
+                            orderBy: {
+                                createdAt: "asc"
+                            },
+                            include: {
+                                replies: {
+                                    where: {
+                                        status: CommentStatus.APPROVED
+                                    },
+                                    orderBy: {
+                                        createdAt: "asc"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                _count: {
+                    select: {
+                        comments: true
+                    }
+                },
             }
         })
         return postData
@@ -121,6 +167,53 @@ const getAllById = async (id: string) => {
     return result
 }
 
+const getMyPost = async (authorId : string) => {
+    const result = await prisma.post.findMany({
+        where : {
+            authorId
+        },
+        orderBy : {
+            createdAt : "asc"
+        },
+        include : {
+            _count : {
+                select : {
+                    comments : true
+                }
+            }
+        }
+        
+    })
+    const total = await prisma.post.count({
+        where : {
+            authorId
+        }
+    })
+
+    return {data : result, total}
+}
+
+const updatePost = async (postId : string, authorId : string, data : Partial<Post>)=> {
+    const postData = await prisma.post.findUnique({
+        where : {
+            id : postId,
+            authorId
+        }
+    })
+
+    if(!(authorId && postData?.authorId)){
+        throw new Error("You can update only your own post ")
+    }
+
+    return await prisma.post.update({
+        where : {
+           id : postId, 
+            authorId
+        },
+        data
+    })
+}
+
 export const postService = {
-    createPost, getAllPost, getAllById
+    createPost, getAllPost, getAllById, getMyPost, updatePost
 }

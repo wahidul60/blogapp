@@ -4,6 +4,27 @@ import authMiddleware, { UserRole } from '../../middleware/auth'
 
 const router = express.Router()
 
-router.post("/",authMiddleware(UserRole.USER), commentController.createComment)
+
+router.get(
+    "/:authorId",
+    authMiddleware(UserRole.USER),
+    commentController.getCommentByauthorId
+)
+
+router.post(
+    "/",
+    authMiddleware(UserRole.USER),
+    commentController.createComment)
+
+router.delete(
+    "/:commentId"
+    ,
+    commentController.deleteComment)
+
+router.patch(
+    "/:commentId"
+    ,
+    commentController.updateComment)
+
 
 export const commentRouter = router

@@ -11,7 +11,7 @@ const createPost = async (req: Request, res: Response) => {
 
             })
         }
-        console.log("requestion:",req.user)
+        console.log("requestion:", req.user)
         const result = await postService.createPost(req.body, req.user.id as string)
         res.status(200).json({
             result
@@ -72,4 +72,48 @@ const getAllById = async (req: Request, res: Response) => {
     }
 }
 
-export const postController = { createPost, getAllPost, getAllById }
+
+const getMyPost = async (req: Request, res: Response) => {
+    try {
+        const authorId = req.user?.id
+        if (!authorId) {
+            throw new Error("user Not found")
+        }
+        const result = await postService.getMyPost(authorId as string)
+        res.status(200).json({
+            result
+        })
+    } catch (e) {
+        const errorMessage = (e instanceof Error) ? e.message : "this is error"
+        res.status(404).json({
+            success: false,
+            error: errorMessage
+        })
+    }
+}
+
+const updatePost = async (req: Request, res: Response) => {
+    try{
+        const authorId = req.user?.id
+        const {postId} = req.params
+
+        if(!authorId){
+            throw new Error("user not found")
+        }
+
+        const result = await postService.updatePost(postId as string, authorId, req.body) 
+
+        res.status(200).json({
+            success : true,
+            data : result
+        })
+    }catch(e){
+        const errMessage = (e instanceof Error) ? e.message : "your are unauthorised"
+        res.status(404).json({
+            success : false,
+            error : errMessage
+        })
+    }
+}
+
+export const postController = { createPost, getAllPost, getAllById, getMyPost, updatePost }
