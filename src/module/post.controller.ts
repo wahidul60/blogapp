@@ -1,6 +1,7 @@
 import { Request, Response } from "express"
 import { postService } from "./post.service"
 import paginationHelper from "../helper/paginationHelper"
+import { UserRole } from "../middleware/auth"
 
 const createPost = async (req: Request, res: Response) => {
 
@@ -96,12 +97,14 @@ const updatePost = async (req: Request, res: Response) => {
     try{
         const authorId = req.user?.id
         const {postId} = req.params
-
+        const isAdmin = req.user?.role === UserRole.ADMIN
+        console.log(isAdmin)
+       
         if(!authorId){
             throw new Error("user not found")
         }
 
-        const result = await postService.updatePost(postId as string, authorId, req.body) 
+        const result = await postService.updatePost(postId as string, authorId, req.body, isAdmin as boolean) 
 
         res.status(200).json({
             success : true,

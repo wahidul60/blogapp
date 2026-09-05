@@ -77,11 +77,11 @@ const getAllPost = async (
         where: {
             AND: andCondition
         },
-        
-        include : {
-            _count : {
-                select : {
-                    comments : true
+
+        include: {
+            _count: {
+                select: {
+                    comments: true
                 }
             }
         }
@@ -167,48 +167,50 @@ const getAllById = async (id: string) => {
     return result
 }
 
-const getMyPost = async (authorId : string) => {
+const getMyPost = async (authorId: string) => {
     const result = await prisma.post.findMany({
-        where : {
+        where: {
             authorId
         },
-        orderBy : {
-            createdAt : "asc"
+        orderBy: {
+            createdAt: "asc"
         },
-        include : {
-            _count : {
-                select : {
-                    comments : true
+        include: {
+            _count: {
+                select: {
+                    comments: true
                 }
             }
         }
-        
+
     })
     const total = await prisma.post.count({
-        where : {
+        where: {
             authorId
         }
     })
 
-    return {data : result, total}
+    return { data: result, total }
 }
 
-const updatePost = async (postId : string, authorId : string, data : Partial<Post>)=> {
+const updatePost = async (postId: string, authorId: string, data: Partial<Post>, isAdmin: boolean) => {
     const postData = await prisma.post.findUnique({
-        where : {
-            id : postId,
-            authorId
+        where: {
+            id: postId           
         }
     })
 
-    if(!(authorId && postData?.authorId)){
+    if (!isAdmin && (authorId !== postData?.authorId)) {
         throw new Error("You can update only your own post please don't change other's post")
     }
 
+    if(!isAdmin){
+        delete data?.isFeature
+    }
+    
     return await prisma.post.update({
-        where : {
-           id : postId, 
-            authorId
+        where: {
+            id: postId            
         },
         data
     })
